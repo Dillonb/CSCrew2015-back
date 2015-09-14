@@ -37,8 +37,14 @@ function get_user($netid) {
         // We need to build it.
         $netid_info = netid_info($netid);
         if ($netid_info) {
-            $name = $netid_info["givenname"]["0"] . " " . $netid_info["sn"]["0"];
-            $year = $netid_info["ou"]["0"];
+            if (array_key_exists("givenname", $netid_info)) {
+                $name = $netid_info["givenname"]["0"] . " " . $netid_info["sn"]["0"];
+            }
+            else {
+                // User has no name in LDAP, set their name to their netid.
+                $name = $netid;
+            }
+            $year = array_key_exists("ou", $netid_info) ? $netid_info["ou"]["0"] : false;
 
             $user = new User();
             $user->setNetid($netid);
