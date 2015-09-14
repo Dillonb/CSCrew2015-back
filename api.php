@@ -77,6 +77,9 @@ $app->group('/signins', function() use ($app) {
     $app->get('/today', function() use ($app) {
         render_json(signins_today());
     });
+    $app->get('/all', function() use ($app) {
+        render_json(signins_all());
+    });
     $app->get('/reasons', function() use ($app) {
         $reasons = signInReasonQuery::create()->find();
         render_json($reasons->toArray());

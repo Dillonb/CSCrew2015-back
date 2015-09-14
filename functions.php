@@ -100,9 +100,7 @@ function signin_netid($netid, $reason_id) {
     return array("error"=>false,"message"=>"Sign-in successful.");
 }
 
-function signins_today() {
-    $beginOfDay = strtotime("midnight", time());
-    $signins = signInQuery::create()->filterByCreatedAt(array('min'=>$beginOfDay))->find();
+function process_signins_resultset($signins) {
     $signins_return = array();
     foreach ($signins as $signin) {
         $obj = $signin->toArray();
@@ -114,6 +112,18 @@ function signins_today() {
         $signins_return[] = $obj;
     }
     return $signins_return;
+}
+
+function signins_today() {
+    $beginOfDay = strtotime("midnight", time());
+    $signins = signInQuery::create()->filterByCreatedAt(array('min'=>$beginOfDay))->find();
+
+    return process_signins_resultset($signins);
+}
+function signins_all() {
+    $beginOfDay = strtotime("midnight", time());
+    $signins = signInQuery::create()->find();
+    return process_signins_resultset($signins);
 }
 
 function get_loggedin_info() {
