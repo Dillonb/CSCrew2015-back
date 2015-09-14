@@ -78,6 +78,7 @@ $app->group('/signins', function() use ($app) {
         render_json(signins_today());
     });
     $app->get('/all', function() use ($app) {
+        if (!require_admin()) {return;}
         render_json(signins_all());
     });
     $app->get('/reasons', function() use ($app) {
