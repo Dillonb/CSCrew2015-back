@@ -26,36 +26,45 @@ function netid_info($netid) {
     }
 }
 
+function apply_netid_info_to_user($netid_info, $user) {
+	if (array_key_exists("givenname", $netid_info)) {
+		$name = $netid_info["givenname"]["0"] . " " . $netid_info["sn"]["0"];
+	}
+	else {
+		// User has no name in LDAP, set their name to their netid.
+		$name = $netid;
+	}
+	$year = array_key_exists("ou", $netid_info) ? $netid_info["ou"]["0"] : false;
+
+	$user->setNetid($netid);
+	if ($year) {
+		$user->setYear($year);
+	}
+	if ($name) {
+		$user->setName($name);
+	}
+	$user->save();
+	return $user;
+}
+
 function get_user($netid) {
     $q = new UserQuery();
     $user = $q->findOneByNetid($netid);
     // The user exists in the database
     if ($user) {
-        return $user;
+        $netid_info = netid_info($netid);
+        if ($netid_info) {
+	       $user = apply_netid_info_to_user($netid_info, $user);
+	}
+       return $user;
     }
     else {
         // We need to build it.
         $netid_info = netid_info($netid);
         if ($netid_info) {
-            if (array_key_exists("givenname", $netid_info)) {
-                $name = $netid_info["givenname"]["0"] . " " . $netid_info["sn"]["0"];
-            }
-            else {
-                // User has no name in LDAP, set their name to their netid.
-                $name = $netid;
-            }
-            $year = array_key_exists("ou", $netid_info) ? $netid_info["ou"]["0"] : false;
-
-            $user = new User();
-            $user->setNetid($netid);
-            if ($year) {
-                $user->setYear($year);
-            }
-            if ($name) {
-                $user->setName($name);
-            }
-            $user->save();
-            return $user;
+		$user = new User();
+		$user = apply_netid_info_to_user($netid_info, $user);
+		return $user;
         }
         else {
             // User doesn't exist in ldap either
@@ -132,9 +141,7 @@ function get_loggedin_info() {
         $who['authenticated'] = true;
         $who['username'] = $_SERVER['WEBAUTH_USER'];
         $who['user'] = get_user($who['username'])->toArray();
-    }
-    else {
-        $who['authenticated'] = false;
+    } else { $who['authenticated'] = false;
         $who['username'] = 'anonymous';
     }
     return $who;
