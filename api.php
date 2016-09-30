@@ -77,6 +77,9 @@ $app->group('/signins', function() use ($app) {
     $app->get('/today', function() use ($app) {
         render_json(signins_today());
     });
+    $app->get('/daysago/:numDays', function($daysAgo) use ($app) {
+        render_json(signins_n_days_ago($daysAgo));
+    });
     $app->get('/all', function() use ($app) {
         if (!require_admin()) {return;}
         render_json(signins_all());
