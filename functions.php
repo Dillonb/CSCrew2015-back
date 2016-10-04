@@ -124,12 +124,12 @@ function process_signins_resultset($signins) {
 }
 
 function signins_n_days_ago($daysAgo) {
-    $oneDayInMS = 24 * 60 * 60 * 100
+    $oneDayInMS = 24 * 60 * 60 * 1000;
     $beginOfDay = strtotime("midnight", time());
-    $dayBeginning = $beginOfDay - ($oneDayInMS * $daysAgo)
-    $dayEnd = $beginOfDay - ($oneDayInMS * ($daysAgo - 1))
+    $dayBeginning = $beginOfDay - ($oneDayInMS * $daysAgo);
+    $dayEnd = $beginOfDay - ($oneDayInMS * ($daysAgo - 1));
 
-    $signins = signInQuery::create()->filterByCreatedAt(array('min'=>$dayBeginning), 'max'=>$dayEnd)->find();
+    $signins = signInQuery::create()->filterByCreatedAt(array('min' => $dayBeginning, 'max' => $dayEnd))->find();
 
     return process_signins_resultset($signins);
 }
