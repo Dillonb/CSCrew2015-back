@@ -98,6 +98,28 @@ $app->group('/signins', function() use ($app) {
     });
 });
 $app->group('/users', function() use ($app) {
+    $app->get('/updateall', function() use ($app) {
+        if (!require_admin()) { return; }
+        print "<pre>";
+        $users = all_users();
+        foreach ($users as $user) {
+            $netid = $user->getNetid();
+            $netid_info = netid_info($netid);
+            if ($netid_info) {
+                print "Updating: $netid\n";
+                print "Old: " . $user->getName() . " " . $user->getNetid() . " " . $user->getYear() . "\n";
+
+                $user = apply_info_to_user($netid, $user, $netid_info);
+
+                print "New: " . $user->getName() . " " . $user->getNetid() . " " . $user->getYear() . "\n";
+            }
+        }
+        print "</pre>";
+
+
+        //$app->response->setBody($body);
+        $app->stop;
+    });
     $app->get('/list', function() use ($app) {
         if (!require_admin()) {return;}
         render_json(all_users()->toArray());
