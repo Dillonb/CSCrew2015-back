@@ -54,7 +54,7 @@ function get_user($netid) {
     if ($user) {
         $netid_info = netid_info($netid);
         if ($netid_info) {
-	       $user = apply_netid_info_to_user($netid_info, $user);
+	       $user = apply_info_to_user($netid, $user, $netid_info);
 	}
        return $user;
     }
@@ -131,6 +131,23 @@ function signins_n_days_ago($daysAgo) {
     $signins = signInQuery::create()->filterByCreatedAt(array('min' => $dayBeginning, 'max' => $dayEnd))->find();
 
     return process_signins_resultset($signins);
+}
+
+// Number of signins starting $daysAgoStart days ago and ending today
+function num_signins_range($daysAgoStart) {
+    $beginOfDay = strtotime("midnight", time());
+   
+    $result = array();
+
+    for($daysAgo = $daysAgoStart; $daysAgo >= 0; $daysAgo--) {
+	    $dayBeginning = $beginOfDay - (86400 * $daysAgo);
+	    $dayEnd = $dayBeginning + 86400;
+
+	    $count = signInQuery::create()->filterByCreatedAt(array('min' => $dayBeginning, 'max' => $dayEnd))->count();
+
+	    array_push($result, $count);
+    }
+    return $result;
 }
 
 function signins_today() {

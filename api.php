@@ -80,6 +80,9 @@ $app->group('/signins', function() use ($app) {
     $app->get('/daysago/:daysAgo', function($daysAgo) use ($app) {
         render_json(signins_n_days_ago($daysAgo));
     });
+    $app->get('/numdaysagorange/:daysAgo', function($daysAgo) use ($app) {
+        render_json(num_signins_range($daysAgo));
+    });
     $app->get('/all', function() use ($app) {
         if (!require_admin()) {return;}
         render_json(signins_all());
